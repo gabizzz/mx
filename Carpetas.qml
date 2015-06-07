@@ -1,14 +1,35 @@
 import QtQuick 2.0
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 
 Rectangle {
     id:root
     width: 400
-    height: 400
+    height: 450
     color: "#00000000"
     border.color: "#00000000"
 
+    property int indiceCarpetas: 0
+
+
+    function buscarCarpeta()
+    {
+        for(var i = indiceCarpetas; i < carpetaslistView.count;i++)
+        {
+            var cadena=myModelCarpetas.get(i).nombre;
+            cadena=cadena.toUpperCase();
+            if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
+            {
+                carpetaslistView.currentIndex=i;
+                indiceCarpetas=i+1;
+                return;
+            }
+        }
+    }
+
     GridView {
         id: carpetaslistView
+        anchors.bottomMargin: 8
         anchors.topMargin: 16
         anchors.fill: parent
         snapMode: GridView.SnapToRow
@@ -16,20 +37,26 @@ Rectangle {
         cellHeight: 100
         cellWidth: 100
         clip: true
+        highlightMoveDuration: 0
+
+        highlight: Rectangle {
+            anchors.fill: carpeta
+            radius: 6
+            color: "#C2185B"
+        }
 
         model: myModelCarpetas
-        delegate: Item {            
-            x: 5
-            width: 80
-            height: 80
+        delegate: Item {
+            id:itemCarpeta
+            width: 100
+            height: 100
             Rectangle {
                 id:carpeta
-                width: 100
-                height: 100
+                anchors.fill: parent
                 radius: 6
-                border.color: "black"
-                border.width: 2
-                color: "#C2185B"
+                border.color: "#C2185B"
+                border.width: 1
+                color: "#b3000000"
                 Text {
                     id:itemText
                     text: nombre.toUpperCase()
@@ -103,6 +130,67 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {root.visible=false; root.z=0;}
             }
+        }
+
+        Text {
+            id: text1
+            color: "#ededed"
+            text: qsTr("Carpetas")
+            verticalAlignment: Text.AlignTop
+            horizontalAlignment: Text.AlignHCenter
+            anchors.fill: parent
+            font.pixelSize: 15
+        }
+    }
+
+    Rectangle {
+        id: rectanglefooter
+        y: 371
+        height: 29
+        color: "#b3000000"
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
+
+        TextField {
+            id: textInputBuscar
+            y: 5
+            z:4
+            height: 20
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 4
+            anchors.right: parent.right
+            anchors.rightMargin: 150
+            anchors.left: parent.left
+            anchors.leftMargin: 150
+            placeholderText: qsTr("Buscar...")
+            focus: true
+            activeFocusOnPress: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 12
+            onTextChanged: {
+                indiceCarpetas=0;
+            }
+
+            onAccepted: {
+                buscarCarpeta()()
+            }
+
+            style: TextFieldStyle {
+                            textColor: "black"
+                            background: Rectangle {
+                                radius: 3
+                                color: "orange"
+                                implicitWidth: 100
+                                implicitHeight: 24
+                                border.color: "#333"
+                                border.width: 1
+                            }
+            }
+
         }
     }
 
