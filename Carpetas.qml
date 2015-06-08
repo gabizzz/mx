@@ -30,20 +30,13 @@ Rectangle {
     GridView {
         id: carpetaslistView
         anchors.bottomMargin: 8
-        anchors.topMargin: 16
+        anchors.topMargin: 35
         anchors.fill: parent
         snapMode: GridView.SnapToRow
         flickableDirection: Flickable.VerticalFlick
         cellHeight: 100
         cellWidth: 100
         clip: true
-//        highlightMoveDuration: 0
-
-//        highlight: Rectangle {
-//            anchors.fill: carpeta
-//            radius: 6
-//            color: "#C2185B"
-//        }
 
 
         model: myModelCarpetas
@@ -56,12 +49,10 @@ Rectangle {
                         State {
                             name: "current"
                             when: GridView.isCurrentItem
-                            //PropertyChanges { target: itemText; font.bold: true }
                         },
                         State {
                             name: "not"
                             when: !GridView.isCurrentItem
-                            //PropertyChanges { target: itemText; font.bold: false }
                         }]
                     state: "not"
 
@@ -112,7 +103,7 @@ Rectangle {
     Rectangle {
         id: rectangleheader
         height: 29
-        color: "#b3000000"
+        color: "#e6000000"
         anchors.right: parent.right
         anchors.rightMargin: 0
         anchors.left: parent.left
@@ -148,25 +139,12 @@ Rectangle {
                 onClicked: {root.visible=false; root.z=0;}
             }
         }
-    }
-
-    Rectangle {
-        id: rectanglefooter
-        y: 371
-        height: 29
-        color: "#b3000000"
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
 
         TextField {
             id: textInputBuscar
-            x: 56
-            y: -417
-            width: 194
+            x: 42
+            y: 5
+            width: 219
             z:4
             height: 20
             placeholderText: qsTr("Buscar...")
@@ -183,28 +161,27 @@ Rectangle {
             }
 
             style: TextFieldStyle {
-                            textColor: "black"
-                            background: Rectangle {
-                                radius: 3
-                                color: "orange"
-                                implicitWidth: 100
-                                implicitHeight: 24
-                                border.color: "#333"
-                                border.width: 1
-                            }
+                textColor: "black"
+                background: Rectangle {
+                    radius: 3
+                    color: "orange"
+                    implicitWidth: 100
+                    implicitHeight: 24
+                    border.color: "#333"
+                    border.width: 1
+                }
             }
 
         }
 
         BotonBuscar {
             id: botonBuscar1
-            x: 268
-            y: -417
+            x: 286
+            y: 5
             width: 70
             height: 20
             onClicked: {buscarCarpeta()}
         }
     }
-
 }
 
