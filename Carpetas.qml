@@ -37,34 +37,51 @@ Rectangle {
         cellHeight: 100
         cellWidth: 100
         clip: true
-        highlightMoveDuration: 0
+//        highlightMoveDuration: 0
 
-        highlight: Rectangle {
-            anchors.fill: carpeta
-            radius: 6
-            color: "#C2185B"
-        }
+//        highlight: Rectangle {
+//            anchors.fill: carpeta
+//            radius: 6
+//            color: "#C2185B"
+//        }
+
 
         model: myModelCarpetas
         delegate: Item {
             id:itemCarpeta
             width: 100
             height: 100
+
+            states: [
+                        State {
+                            name: "current"
+                            when: GridView.isCurrentItem
+                            //PropertyChanges { target: itemText; font.bold: true }
+                        },
+                        State {
+                            name: "not"
+                            when: !GridView.isCurrentItem
+                            //PropertyChanges { target: itemText; font.bold: false }
+                        }]
+                    state: "not"
+
+
             Rectangle {
                 id:carpeta
                 anchors.fill: parent
                 radius: 6
-                border.color: "#C2185B"
+                border.color: "black"
                 border.width: 1
-                color: "#b3000000"
+                color: "#C2185B"
                 Text {
                     id:itemText
                     text: nombre.toUpperCase()
-                    fontSizeMode: Text.Fit; minimumPixelSize: 9; font.pixelSize: 12
-                    font.bold: true; anchors.verticalCenter: parent.verticalCenter
+                    fontSizeMode: Text.Fit; minimumPixelSize: 9; font.pixelSize: 12;font.bold: true
+                    anchors.verticalCenter: parent.verticalCenter
                     x:2
                     y:5
-                    color: "#FFFFFF"
+                    //color: "#FFFFFF"
+                    color: itemCarpeta.GridView.isCurrentItem ? "orange" : "#FFFFFF"
                     width: 80
                     height: 80
                     wrapMode: Text.WordWrap
@@ -131,16 +148,6 @@ Rectangle {
                 onClicked: {root.visible=false; root.z=0;}
             }
         }
-
-        Text {
-            id: text1
-            color: "#ededed"
-            text: qsTr("Carpetas")
-            verticalAlignment: Text.AlignTop
-            horizontalAlignment: Text.AlignHCenter
-            anchors.fill: parent
-            font.pixelSize: 15
-        }
     }
 
     Rectangle {
@@ -157,15 +164,11 @@ Rectangle {
 
         TextField {
             id: textInputBuscar
-            y: 5
+            x: 56
+            y: -417
+            width: 194
             z:4
             height: 20
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 4
-            anchors.right: parent.right
-            anchors.rightMargin: 150
-            anchors.left: parent.left
-            anchors.leftMargin: 150
             placeholderText: qsTr("Buscar...")
             focus: true
             activeFocusOnPress: true
@@ -176,7 +179,7 @@ Rectangle {
             }
 
             onAccepted: {
-                buscarCarpeta()()
+                buscarCarpeta()
             }
 
             style: TextFieldStyle {
@@ -191,6 +194,15 @@ Rectangle {
                             }
             }
 
+        }
+
+        BotonBuscar {
+            id: botonBuscar1
+            x: 268
+            y: -417
+            width: 70
+            height: 20
+            onClicked: {buscarCarpeta()}
         }
     }
 

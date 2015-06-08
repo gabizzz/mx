@@ -29,5 +29,6 @@
         <file>images/folder.png</file>
         <file>Splash.qml</file>
         <file>Etiqueta.qml</file>
+        <file>BotonBuscar.qml</file>
     </qresource>
 </RCC>

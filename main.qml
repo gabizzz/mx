@@ -644,7 +644,7 @@ Image {
         y: 2
         z:4
         height: 20
-        anchors.right: rectangleBuscar.left
+        anchors.right: botonBuscar.left
         anchors.rightMargin: 6
         anchors.left: etiquetaA.right
         anchors.leftMargin: 6
@@ -675,32 +675,18 @@ Image {
 
     }
 
-    Rectangle {
-        id: rectangleBuscar
+    BotonBuscar {
+        id: botonBuscar
         x: 739
         y: 2
-        width: 74
+        width: 70
         height: 20
-        color: "#2865b3"
-        radius: 3
         anchors.right: etiquetaB.left
         anchors.rightMargin: 6
-
-        Text {
-            id: textBuscar
-            color: "#ffffff"
-            text: qsTr("Buscar")
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.fill: parent
-            font.pixelSize: 12
-        }
-
-        MouseArea {
-            id: mouseAreaBuscar
-            anchors.fill: parent
-            onClicked: buscar()
-        }
+        onClicked: {buscar()}
     }
+
+
 
     Text {
         id: textcantidadtracks
