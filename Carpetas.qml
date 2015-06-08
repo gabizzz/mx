@@ -111,32 +111,16 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: 0
 
-        Rectangle {
-            id: rectangleCerrar
+        BotonCerrar{
             width: 27
             height: 27
-            color: "#b3000000"
-            radius: 14
             anchors.top: parent.top
             anchors.topMargin: 1
             anchors.left: parent.left
             anchors.leftMargin: 0
-            border.color: "#a4a4a4"
-
-            Text {
-                id: textX
-                color: "#ffffff"
-                text: qsTr("X")
-                anchors.fill: parent
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 12
-            }
-
-            MouseArea {
-                id: mouseAreaCerrar
-                anchors.fill: parent
-                onClicked: {root.visible=false; root.z=0;}
+            onClicked: {
+                root.visible=false
+                root.z=0;
             }
         }
 

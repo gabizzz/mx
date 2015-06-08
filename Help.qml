@@ -7,46 +7,23 @@ Rectangle {
     color: "#000000"
     radius: 2
     border.color: "#262626"
-    border.width: 6
-    property alias mouseAreaSalir: mouseAreaSalir
+    border.width: 3
 
-    Rectangle {
-        id: rectangleCerrar
-        x: 164
-        y: 305
-        width: 72
-        height: 37
-        color: "#0f0b0b"
-        radius: 18
-        border.width: 2
-        border.color: "#2865b3"
-
-        MouseArea{
-            anchors.fill: parent
-            id:mouseAreaSalir
-            onClicked: {
-                root.visible=false;
-                root.z=0;
-            }
-
-            Text {
-                id: textCerrar
-                color: "#e2e2e2"
-                text: qsTr("Cerrar")
-                z: 3
-                anchors.fill: parent
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 12
-            }
-
+    BotonCerrar{
+        anchors.top: parent.top
+        anchors.topMargin: 3
+        anchors.left: parent.left
+        anchors.leftMargin: 4
+        onClicked: {
+            root.visible=false
+            root.z=0
         }
     }
 
     Image {
         id: image1
         x: 18
-        y: 18
+        y: 30
         width: 100
         height: 26
         source: "images/autodj.png"
@@ -55,7 +32,7 @@ Rectangle {
     Text {
         id: text1
         x: 124
-        y: 18
+        y: 30
         width: 259
         height: 110
         color: "white"
@@ -67,7 +44,7 @@ Rectangle {
     Image {
         id: image2
         x: 18
-        y: 141
+        y: 156
         width: 100
         height: 61
         source: "images/agregarpista.png"
@@ -76,7 +53,7 @@ Rectangle {
     Text {
         id: text2
         x: 124
-        y: 141
+        y: 156
         width: 259
         height: 61
         color: "white"
@@ -88,7 +65,7 @@ Rectangle {
     Rectangle {
         id: rectangle1
         x: 18
-        y: 224
+        y: 234
         width: 100
         height: 34
         color: "#b3c31860"
@@ -110,9 +87,9 @@ Rectangle {
     Text {
         id: text4
         x: 124
-        y: 224
+        y: 234
         width: 259
-        height: 61
+        height: 68
         color: "white"
         text: qsTr("Seccion Carpeta: Veremos que la lista se divide por secciones, estas son las carpetas, al tocarlas nos mostrara el resto de las carpetas.Si seleccionamos una nos llevara a la escogida")
         font.pixelSize: 12
