@@ -16,8 +16,22 @@ Window {
     title: "MX"
 
    Component.onCompleted: {
-        textcantidadtracks.text=folderListView.count.toString()+" tracks"
-    } //muestra cantidad de tracks cargados
+       cargaColeccion.start()
+   }
+
+   Timer {
+       id: cargaColeccion
+       interval: 100; repeat: false
+       running: true
+       triggeredOnStart: false
+
+       onTriggered: {
+           myModelMusica.cargarModelo(myDirectorio);
+           //modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
+           folderListView.model=myModelMusica
+       }
+    }
+
 
     property int indice: 0
     property int ultimoindice: 0
@@ -119,7 +133,6 @@ Window {
 
     function cargoPista(pista,argIndex)
     {
-        console.log(argIndex)
         if (pistaSeleccionada.length!==0)//si la pista seleccionada no esta vacia
         {
 
@@ -404,13 +417,16 @@ ListView {
     anchors.bottom: rectangleControles.top
     anchors.bottomMargin: 4
     flickableDirection: Flickable.VerticalFlick
-    model: myModelMusica
+    //model: myModelMusica
     delegate: eligeItemDelegate
     highlightMoveDuration: 0
     highlight: Rectangle {
         anchors.fill: itemLista;
         color: "#303F9F"
     }
+
+    onCountChanged: {textcantidadtracks.text=folderListView.count.toString()+" tracks"}
+
     section {
         property:"abc"
         criteria: ViewSection.FullString

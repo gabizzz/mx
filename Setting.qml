@@ -16,14 +16,15 @@ Rectangle {
 
     SQLiteModel{id:sqlSetting}
 
-    onVisibleChanged:
+    Component.onCompleted:
     {
-        if (visible===true)
-        {
             sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
             sqlSetting.setQuery("Select * from setting")
-            textSettingGuardado.text=sqlSetting.get(0).Desc
-        }
+            if (sqlSetting.get(0).Desc!==""){
+                textSettingGuardado.text=sqlSetting.get(0).Desc
+                ultimodir=sqlSetting.get(0).Desc
+                actualizaColeccion.start();
+            }
     }
 
     function carpetaFinal(argumento)
@@ -131,6 +132,16 @@ Rectangle {
         delegate: fileDelegate
     }
 
+    Timer {
+        id: actualizaColeccion
+        interval: 100; repeat: false
+        running: true
+        triggeredOnStart: false
+
+        onTriggered: {
+            myModelMusica.cargarModelo(ultimodir);
+        }
+     }
 
     Rectangle {
         id: rectangleAgregar
@@ -150,7 +161,7 @@ Rectangle {
                 sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
                 sqlSetting.setQuery("DELETE FROM SETTING")
                 sqlSetting.setQuery('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")')
-                myModelMusica.cargarModelo(ultimodir)
+                actualizaColeccion.start();
                 root.visible=false;
             }
 

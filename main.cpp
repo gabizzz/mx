@@ -4,6 +4,7 @@
 #include <QQmlContext>
 #include <QStringListModel>
 #include "model.h"
+
 #include <QDebug>
 #include <QStandardPaths>
 #include "sqlitemodel.h"
@@ -28,8 +29,10 @@ int main(int argc, char *argv[])
     seteoMiLibreria.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite");
     seteoMiLibreria.setQuery("SELECT * FROM SETTING");
 
-    modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
-    modeloMusica.cargarModelo(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0));
+    //modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
+    //modeloMusica.cargarModelo(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0));
+
+    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0);
 
     QQmlApplicationEngine engine;
 
