@@ -15,7 +15,9 @@ Window {
     color: "#000000"
     title: "MX"
 
-    Component.onCompleted: {textcantidadtracks.text=folderListView.count.toString()+" tracks"} //muestra cantidad de tracks cargados
+   Component.onCompleted: {
+        textcantidadtracks.text=folderListView.count.toString()+" tracks"
+    } //muestra cantidad de tracks cargados
 
     property int indice: 0
     property int ultimoindice: 0
@@ -31,10 +33,6 @@ Window {
     property int indexB: 0
 
     width: Screen.width
-
-//    Splash {
-//         onTimeout: window1.visible = true
-//    }
 
     function updatePos(value,maxval,minval,xMax,swidth,hwidth) {
         var pos;
@@ -724,5 +722,6 @@ Image {
         onClicked: {folderListView.currentIndex=indexB}
     }
 }
+
 }
 

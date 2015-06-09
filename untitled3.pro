@@ -4,7 +4,7 @@ QT += qml quick sql
 
 SOURCES += main.cpp \
     model.cpp \
-    sqlite.cpp
+    sqlitemodel.cpp
 
 RESOURCES += qml.qrc
 TARGET = MX
@@ -17,7 +17,7 @@ include(deployment.pri)
 
 HEADERS += \
     model.h \
-    sqlite.h
+    sqlitemodel.h
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

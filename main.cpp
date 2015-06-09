@@ -4,18 +4,18 @@
 #include <QQmlContext>
 #include <QStringListModel>
 #include "model.h"
-#include "carpetas.h"
 #include <QDebug>
 #include <QStandardPaths>
-#include "sqlite.h"
-
+#include "sqlitemodel.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/images/iconapp.png"));
 
-    sqlite consulta;
+    SQLiteModel::declareQML();
+
+    SQLiteModel seteoMiLibreria;
 
     MusicaModel modeloMusica;
 
@@ -25,7 +25,10 @@ int main(int argc, char *argv[])
 
     QString directorioDCIM=QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0);
 
-    modeloMusica.cargarModelo(consulta.select());
+    seteoMiLibreria.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite");
+    seteoMiLibreria.setQuery("SELECT * FROM SETTING");
+
+    modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
     modeloMusica.cargarModelo(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0));
 
     QQmlApplicationEngine engine;
@@ -34,7 +37,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("myModelMusica", &modeloMusica);
     engine.rootContext()->setContextProperty("myDirectorio", directorioDCIM);
     engine.rootContext()->setContextProperty("myModelCarpetas",&modeloCarpetas);
-    engine.rootContext()->setContextProperty("myQuery",&consulta);
+    //engine.rootContext()->setContextProperty("myQuery",&consulta);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 

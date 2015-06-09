@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Qt.labs.folderlistmodel 2.1
 import QtQuick.Controls 1.2
+import PluginSqlite 1.0
 
 Rectangle {
     id:root
@@ -13,11 +14,15 @@ Rectangle {
 
     property string ultimodir: ""
 
-    onVisibleChanged: {
+    SQLiteModel{id:sqlSetting}
+
+    onVisibleChanged:
+    {
         if (visible===true)
         {
-            textSettingGuardado.text=myQuery.select();
-            //Base.printValues();
+            sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+            sqlSetting.setQuery("Select * from setting")
+            textSettingGuardado.text=sqlSetting.get(0).Desc
         }
     }
 
@@ -142,10 +147,9 @@ Rectangle {
             id:mouseAreaAgregar
             anchors.fill: parent
             onClicked: {
-                //Base.deleteValues();
-                //Base.insertValues(ultimodir)
-                myQuery.deleteValues();
-                myQuery.insertValues('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")');
+                sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+                sqlSetting.setQuery("DELETE FROM SETTING")
+                sqlSetting.setQuery('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")')
                 myModelMusica.cargarModelo(ultimodir)
                 root.visible=false;
             }

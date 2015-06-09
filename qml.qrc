@@ -27,7 +27,6 @@
         <file>Setting.qml</file>
         <file>images/setting.png</file>
         <file>images/folder.png</file>
-        <file>Splash.qml</file>
         <file>Etiqueta.qml</file>
         <file>BotonBuscar.qml</file>
         <file>BotonCerrar.qml</file>
