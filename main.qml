@@ -126,9 +126,14 @@ Window {
 
     function getNextSong()
     {      
-        folderListView.incrementCurrentIndex();
-        ultimoindice=folderListView.currentIndex;
-        pistaSeleccionada="file://"+myModelMusica.get(folderListView.currentIndex).ubicacion;
+        if (textInputBuscar.text==="")
+        {
+            folderListView.incrementCurrentIndex();
+            ultimoindice=folderListView.currentIndex;
+            pistaSeleccionada="file://"+myModelMusica.get(folderListView.currentIndex).ubicacion;
+        }else{
+            buscar()
+        }
     }
 
     function cargoPista(pista,argIndex)
@@ -271,19 +276,20 @@ Window {
 
     function buscar()
     {
-        for(var i = indice; i < folderListView.count;i++)
+        console.log(ultimoindice)
+        for(var i = ultimoindice; i < folderListView.count;i++)
         {
             var cadena=myModelMusica.get(i).ubicacion;
             cadena=cadena.toUpperCase();
             if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
             {
                 pistaSeleccionada="file://"+myModelMusica.get(i).ubicacion
-                folderListView.currentIndex=i;
-                console.log(pistaSeleccionada)
-                indice=i+1;
+                folderListView.currentIndex=i;                
+                ultimoindice=i+1;
                 return;
             }
         }
+        ultimoindice=0
     }
 
 ControlSuperior {
@@ -380,8 +386,10 @@ ControlSuperior {
                     folderListView.currentIndex=index
                     ultimoindice=index
                     pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
+
                 }
                 onDoubleClicked: {
+                    ultimoindice=index
                     if (fadepistaBTimer.running)
                         fadepistaBTimer.stop()
                     else if (fadepistaATimer.running)
@@ -410,8 +418,11 @@ ControlSuperior {
 
 ListView {
     id: folderListView
-    width: 1346
     height: 500
+    anchors.left: parent.left
+    anchors.leftMargin: 0
+    anchors.right: parent.right
+    anchors.rightMargin: 0
     clip: true
     anchors.top: controlSuperior.bottom
     anchors.bottom: rectangleControles.top

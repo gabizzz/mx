@@ -126,7 +126,7 @@ QVariantMap MusicaModel::get(int row) const
     {
         map[roleNames().value(k)] = data(index(row, 0), k);
     }
-        return map;
+    return map;
 }
 
 QVariantMap CarpetaModel::get(int row) const
