@@ -34,6 +34,7 @@ Window {
 
 
     property int indice: 0
+    property int solouno: 0 //registra cuando encuentra el primero de la busqueda
     property int ultimoindice: 0
     property bool playingA: false
     property bool playingB: false
@@ -47,6 +48,26 @@ Window {
     property int indexB: 0
 
     width: Screen.width
+
+    function cargoManual()
+    {
+        if(loadA===false)
+        {
+            cargoPista("A",ultimoindice)
+        }
+        else if (loadB===false)
+        {
+            cargoPista("B",ultimoindice)
+        }
+        if(loadA===true && playingA===false)
+        {
+            playPausa("A")
+        }
+        else if (loadB===true && playingB===false)
+        {
+            playPausa("B")
+        }
+    }
 
     function updatePos(value,maxval,minval,xMax,swidth,hwidth) {
         var pos;
@@ -275,22 +296,27 @@ Window {
     }
 
     function buscar()
-    {
-        console.log(ultimoindice)
+    {        
         for(var i = ultimoindice; i < folderListView.count;i++)
         {
             var cadena=myModelMusica.get(i).ubicacion;
             cadena=cadena.toUpperCase();
             if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
             {
+                if (solouno===0)
+                    solouno=i
                 pistaSeleccionada="file://"+myModelMusica.get(i).ubicacion
-                folderListView.currentIndex=i;                
+                folderListView.currentIndex=i;
                 ultimoindice=i+1;
                 return;
             }
         }
-        ultimoindice=0
+        folderListView.currentIndex=solouno
+        pistaSeleccionada="file://"+myModelMusica.get(solouno).ubicacion
+        ultimoindice=solouno+1
     }
+
+
 
 ControlSuperior {
     id: controlSuperior
@@ -357,6 +383,11 @@ ControlSuperior {
             id: itemLista
             height: 30
             width: folderListView.width
+            focus: true
+            Keys.onPressed: {
+                if (event.key == Qt.Key_Control)
+                    cargoManual()
+            }
 
             Image {
                 id: fileIcon
@@ -394,24 +425,9 @@ ControlSuperior {
                         fadepistaBTimer.stop()
                     else if (fadepistaATimer.running)
                         fadepistaATimer.stop()
-
-                    if(loadA===false)
-                    {
-                        cargoPista("A",ultimoindice)
-                    }
-                    else if (loadB===false)
-                    {
-                        cargoPista("B",ultimoindice)
-                    }
-                    if(loadA===true && playingA===false)
-                    {
-                        playPausa("A")
-                    }
-                    else if (loadB===true && playingB===false)
-                    {
-                        playPausa("B")
-                    }
+                    cargoManual()
                 }
+
             }
         }
     }
@@ -678,8 +694,10 @@ Image {
         activeFocusOnPress: true
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 12
+
         onTextChanged: {
             indice=0;
+            solouno=0;
         }
 
         onAccepted: {
@@ -709,9 +727,8 @@ Image {
         anchors.right: etiquetaB.left
         anchors.rightMargin: 6
         onClicked: {buscar()}
+
     }
-
-
 
     Text {
         id: textcantidadtracks
@@ -749,6 +766,7 @@ Image {
         onClicked: {folderListView.currentIndex=indexB}
     }
 }
+
 
 }
 
