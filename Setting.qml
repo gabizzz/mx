@@ -136,7 +136,7 @@ Rectangle {
         id: actualizaColeccion
         interval: 100; repeat: false
         running: true
-        triggeredOnStart: false
+        triggeredOnStart: true
 
         onTriggered: {
             myModelMusica.cargarModelo(ultimodir);
@@ -209,6 +209,18 @@ Rectangle {
         font.pixelSize: 12
     }
 
+    BotonHome {
+        id: botonHome1
+        x: 367
+        y: 4
+        width: 27
+        height: 27
+        onClicked: {
+            folderModel.folder= "file:"+myDirectorio+"/"
+            textSettingGuardado.text=""
+        }
+    }
+
     Text {
         id: text1
         color: "#ffffff"
@@ -224,33 +236,6 @@ Rectangle {
         font.pixelSize: 12
     }
 
-    Image {
-        id: imageHome
-        x: 15
-        y: 306
-        width: 36
-        height: 36
-        source: "images/folder.png"
-
-        MouseArea {
-            id: mouseArea1
-            anchors.fill: parent
-            onClicked: {
-                folderModel.folder= "file:"+myDirectorio+"/"
-                textSettingGuardado.text=""
-            }
-        }
-
-        Text {
-            id: text2
-            text: qsTr("H")
-            font.bold: true
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            anchors.fill: parent
-            font.pixelSize: 18
-        }
-    }
 
 }
 

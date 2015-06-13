@@ -68,14 +68,12 @@ Rectangle {
         y: 234
         width: 100
         height: 34
-        color: "#b3c31860"
+        color: "#1d1d26"
         radius: 3
-        border.color: "#8f033a"
-        opacity: 0.7
 
         Text {
             id: text3
-            color: "#ffffff"
+            color: "#e84f43"
             text: qsTr("Carpeta")
             verticalAlignment: Text.AlignVCenter
             anchors.fill: parent

@@ -30,5 +30,6 @@
         <file>Etiqueta.qml</file>
         <file>BotonBuscar.qml</file>
         <file>BotonCerrar.qml</file>
+        <file>BotonHome.qml</file>
     </qresource>
 </RCC>

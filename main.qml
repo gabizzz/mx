@@ -11,7 +11,6 @@ Window {
     id: window1
     visible: true
     height: Screen.height
-
     color: "#000000"
     title: "MX"
 
@@ -19,15 +18,41 @@ Window {
        cargaColeccion.start()
    }
 
+   onFocusObjectChanged: {
+       if (carpetas.visible===true)
+           textInputBuscar.focus=false
+       else
+           textInputBuscar.focus=true
+   }
+
+   Setting{
+       id:setting
+       anchors.verticalCenter: parent.verticalCenter
+       anchors.horizontalCenter: parent.horizontalCenter
+       visible: false
+   }
+
+   Carpetas{
+       id:carpetas
+       anchors.verticalCenter: parent.verticalCenter
+       anchors.horizontalCenter: parent.horizontalCenter
+       visible: false
+   }
+
+   Help{
+       id:ayuda
+       anchors.verticalCenter: parent.verticalCenter
+       anchors.horizontalCenter: parent.horizontalCenter
+       visible: false
+   }
+
    Timer {
        id: cargaColeccion
        interval: 100; repeat: false
        running: true
-       triggeredOnStart: false
-
+       triggeredOnStart: true
        onTriggered: {
            myModelMusica.cargarModelo(myDirectorio);
-           //modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
            folderListView.model=myModelMusica
        }
     }
@@ -303,7 +328,7 @@ Window {
             cadena=cadena.toUpperCase();
             if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
             {
-                if (solouno===0)
+                if (solouno===0) //el primero que encuentra
                     solouno=i
                 pistaSeleccionada="file://"+myModelMusica.get(i).ubicacion
                 folderListView.currentIndex=i;
@@ -383,11 +408,6 @@ ControlSuperior {
             id: itemLista
             height: 30
             width: folderListView.width
-            focus: true
-            Keys.onPressed: {
-                if (event.key == Qt.Key_Control)
-                    cargoManual()
-            }
 
             Image {
                 id: fileIcon
@@ -405,9 +425,9 @@ ControlSuperior {
                     verticalCenter: parent.verticalCenter
                 }
                 elide: Text.ElideRight
-                font.pixelSize: 20
+                font.pointSize: 14
                 font.letterSpacing: -1
-                color: "#c5cae9"
+                color: "#ffcd8b"
                 text: archivo
             }
 
@@ -417,10 +437,12 @@ ControlSuperior {
                     folderListView.currentIndex=index
                     ultimoindice=index
                     pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
-
                 }
                 onDoubleClicked: {
+                    folderListView.currentIndex=index
                     ultimoindice=index
+                    pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
+
                     if (fadepistaBTimer.running)
                         fadepistaBTimer.stop()
                     else if (fadepistaATimer.running)
@@ -444,12 +466,11 @@ ListView {
     anchors.bottom: rectangleControles.top
     anchors.bottomMargin: 4
     flickableDirection: Flickable.VerticalFlick
-    //model: myModelMusica
     delegate: eligeItemDelegate
     highlightMoveDuration: 0
     highlight: Rectangle {
         anchors.fill: itemLista;
-        color: "#303F9F"
+        color: "#404040"
     }
 
     onCountChanged: {textcantidadtracks.text=folderListView.count.toString()+" tracks"}
@@ -459,12 +480,12 @@ ListView {
         criteria: ViewSection.FullString
         delegate: Rectangle{
             width: window1.width; height: textoSection.height+10
-            color:"#C2185B"
+            color:"#1d1d26"
             Text {
                 id:textoSection
                 font.pointSize: 10
                 font.bold: true
-                color: "#FFFFFF"
+                color: "#e84f43"
                 text: section.toUpperCase()
                 width: parent.width
                 wrapMode: Text.WordWrap
@@ -481,27 +502,6 @@ ListView {
         }
     }
 
-}
-
-Setting{
-    id:setting
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    visible: false
-}
-
-Carpetas{
-    id:carpetas
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    visible: false
-}
-
-Help{
-    id:ayuda
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    visible: false
 }
 
 Image {
@@ -566,7 +566,6 @@ Image {
         sourceSize.height: 100
         sourceSize.width: 100
         source: "images/disable_play_button.png"
-
 
         //MouseArea{
         MultiPointTouchArea{
@@ -682,7 +681,7 @@ Image {
 
     TextField {
         id: textInputBuscar
-        y: 2
+        y:2
         z:4
         height: 20
         anchors.right: botonBuscar.left
@@ -690,10 +689,10 @@ Image {
         anchors.left: etiquetaA.right
         anchors.leftMargin: 6
         placeholderText: qsTr("Buscar...")
-        focus: true
         activeFocusOnPress: true
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 12
+        focus:true
 
         onTextChanged: {
             indice=0;
@@ -733,11 +732,12 @@ Image {
     Text {
         id: textcantidadtracks
         x: 671
-        y: 157
+        y: 152
         color: "#a6a6a6"
         text: qsTr("Tracks")
+        anchors.horizontalCenterOffset: 0
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 8
+        anchors.bottomMargin: 13
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: 12
     }

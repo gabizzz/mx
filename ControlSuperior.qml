@@ -37,7 +37,7 @@ Rectangle{
     Image {
         id: imageplaying
         width: 30
-        height: 30
+        height: 25
         anchors.left: parent.left
         anchors.leftMargin: 0
         source: ""

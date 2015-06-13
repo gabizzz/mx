@@ -11,7 +11,6 @@ Rectangle {
 
     property int indiceCarpetas: 0
 
-
     function buscarCarpeta()
     {
         for(var i = indiceCarpetas; i < carpetaslistView.count;i++)
@@ -25,6 +24,13 @@ Rectangle {
                 return;
             }
         }
+    }
+
+    onVisibleChanged: {
+        if (visible===true)
+            textInputBuscar.focus=true
+        else
+            textInputBuscar.focus=false
     }
 
     GridView {
@@ -63,7 +69,7 @@ Rectangle {
                 radius: 6
                 border.color: "black"
                 border.width: 1
-                color: "#C2185B"
+                color: "#1d1d26"
                 Text {
                     id:itemText
                     text: nombre.toUpperCase()
@@ -72,7 +78,7 @@ Rectangle {
                     x:2
                     y:5
                     //color: "#FFFFFF"
-                    color: itemCarpeta.GridView.isCurrentItem ? "orange" : "#FFFFFF"
+                    color: itemCarpeta.GridView.isCurrentItem ? "orange" : "#e84f43"
                     width: 80
                     height: 80
                     wrapMode: Text.WordWrap
@@ -132,7 +138,7 @@ Rectangle {
             z:4
             height: 20
             placeholderText: qsTr("Buscar...")
-            focus: true
+            focus: false
             activeFocusOnPress: true
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 12
