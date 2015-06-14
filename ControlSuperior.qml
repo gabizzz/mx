@@ -5,10 +5,15 @@ Rectangle{
     id:contenedor
     height: 25
     color: "black"
-    //signal switchClicked(var checked)
     width: 400
 
-    property alias switchADj: switchADj
+    Rectangle{
+        width: parent.width
+        height: 1
+        color: "#dd4814"
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
+    }
 
     function nowPlayingA(pista)
     {
@@ -74,30 +79,20 @@ Rectangle{
     }
 
 
-    Switch{
-        id: switchADj
-        x: 341
-        y: 0
-        height: 25
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        anchors.verticalCenterOffset: 0
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
     Label {
         id: labelInfo
-        x: 288
+        x: 274
         y: 0
         width: 47
         height: 25
-        font.pointSize: 12
+        font.pointSize: 10
         font.bold: true
         color: "#C5CAE9"
-        text: qsTr("AutoDj")
+        text: qsTr("Auto")
+        anchors.verticalCenterOffset: 0
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: switchADj.left
-        anchors.rightMargin: 14
+        anchors.right: parent.right
+        anchors.rightMargin: 86
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }

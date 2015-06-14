@@ -144,10 +144,12 @@ Rectangle {
             font.pixelSize: 12
             onTextChanged: {
                 indiceCarpetas=0;
+                botonBuscar1.textBuscar="Buscar"
             }
 
             onAccepted: {
                 buscarCarpeta()
+                botonBuscar1.textBuscar="Otra"
             }
 
             style: TextFieldStyle {

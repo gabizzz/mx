@@ -14,6 +14,7 @@ Window {
     color: "#000000"
     title: "MX"
 
+
    Component.onCompleted: {
        cargaColeccion.start()
    }
@@ -24,6 +25,7 @@ Window {
        else
            textInputBuscar.focus=true
    }
+
 
    Setting{
        id:setting
@@ -250,7 +252,7 @@ Window {
                     pistaA.play()
                     playingA=true
                     timerPistaA.running=true
-                    if (switchAutoDJ)
+                    if (theSwitch.on===true)//(switchAutoDJ)
                     {
                         fadepistaATimer.interval=tiempoMezcla/(sliderValue*100)
                         fadepistaATimer.start()
@@ -278,7 +280,7 @@ Window {
                     timerPistaB.running=true
                     botonPlayB.source="qrc:/images/play_button.png"
                     playingB=true
-                    if (switchAutoDJ)
+                    if (theSwitch.on===true)//(switchAutoDJ)
                     {
                         fadepistaBTimer.interval=tiempoMezcla/((2.0-sliderValue)*100)//el valor max menos la pos del slider
                         fadepistaBTimer.start()
@@ -354,11 +356,7 @@ ControlSuperior {
     anchors.rightMargin: 0
     anchors.left: parent.left
     anchors.leftMargin: 0
-    switchADj.checked: true
 
-    switchADj.onCheckedChanged: {
-        switchAutoDJ=switchADj.checked
-    }
 }
 //ver si la pista esta en pausa y corro el fade para su lado en auto dj, la finaliza y reproduce la otra (corregir)
     Timer {
@@ -425,10 +423,10 @@ ControlSuperior {
                     verticalCenter: parent.verticalCenter
                 }
                 elide: Text.ElideRight
-                font.pointSize: 14
+                font.pointSize: 10
                 font.letterSpacing: -1
                 color: "#ffcd8b"
-                text: archivo
+                text: archivo.toUpperCase()
             }
 
             MouseArea {
@@ -483,7 +481,7 @@ ListView {
             color:"#1d1d26"
             Text {
                 id:textoSection
-                font.pointSize: 10
+                font.pointSize: 12
                 font.bold: true
                 color: "#e84f43"
                 text: section.toUpperCase()
@@ -584,7 +582,7 @@ Image {
 
                     if(Logic.getTimeFromMSec(pistaA.position)===Logic.getTimeFromMSec(pistaA.duration-tiempoMezcla))
                     {
-                        if (switchAutoDJ===true)
+                        if (theSwitch.on===true)
                         {
                             autoDj()
                         }
@@ -633,7 +631,7 @@ Image {
 
                     if(Logic.getTimeFromMSec(pistaB.position)===Logic.getTimeFromMSec(pistaB.duration-tiempoMezcla))
                     {
-                        if (switchAutoDJ===true)
+                        if (theSwitch.on===true)
                         {
                             autoDj()
                         }
@@ -697,10 +695,13 @@ Image {
         onTextChanged: {
             indice=0;
             solouno=0;
+            botonBuscar.textBuscar="Buscar"
+
         }
 
         onAccepted: {
             buscar()
+            botonBuscar.textBuscar="Otro"
         }
 
         style: TextFieldStyle {
@@ -766,7 +767,15 @@ Image {
         onClicked: {folderListView.currentIndex=indexB}
     }
 }
-
+Switcher{
+    id:theSwitch
+    x: 1292
+    anchors.top: parent.top
+    anchors.topMargin: 2
+    anchors.right: parent.right
+    anchors.rightMargin: 6
+    z: 3
+}
 
 }
 

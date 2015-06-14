@@ -10,7 +10,7 @@ Rectangle {
     color: "#000000"
     radius: 2
     border.color: "#262626"
-    border.width: 3
+    border.width: 1
 
     property string ultimodir: ""
 
@@ -143,40 +143,6 @@ Rectangle {
         }
      }
 
-    Rectangle {
-        id: rectangleAgregar
-        x: 162
-        y: 317
-        width: 72
-        height: 25
-        color: "#0f0b0b"
-        radius: 18
-        border.width: 2
-        border.color: "#2865b3"
-
-        MouseArea{
-            id:mouseAreaAgregar
-            anchors.fill: parent
-            onClicked: {
-                sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
-                sqlSetting.setQuery("DELETE FROM SETTING")
-                sqlSetting.setQuery('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")')
-                actualizaColeccion.start();
-                root.visible=false;
-            }
-
-            Text {
-                id: textAgregar
-                color: "#e2e2e2"
-                text: qsTr("Guardar")
-                anchors.fill: parent
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 12
-            }
-
-        }
-    }
 
     Text {
         id: textExiste
@@ -211,7 +177,7 @@ Rectangle {
 
     BotonHome {
         id: botonHome1
-        x: 367
+        x: 37
         y: 4
         width: 27
         height: 27
@@ -235,7 +201,19 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 12
     }
-
+    BotonBuscar{
+        id:botonSave
+        x: 162
+        y: 317
+        textBuscar: "Guardar"
+        onClicked: {
+            sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+            sqlSetting.setQuery("DELETE FROM SETTING")
+            sqlSetting.setQuery('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")')
+            actualizaColeccion.start();
+            root.visible=false;
+        }
+    }
 
 }
 

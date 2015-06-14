@@ -7,7 +7,7 @@ Rectangle {
     color: "#000000"
     radius: 2
     border.color: "#262626"
-    border.width: 3
+    border.width: 1
 
     BotonCerrar{
         anchors.top: parent.top

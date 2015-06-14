@@ -31,5 +31,6 @@
         <file>BotonBuscar.qml</file>
         <file>BotonCerrar.qml</file>
         <file>BotonHome.qml</file>
+        <file>Switcher.qml</file>
     </qresource>
 </RCC>

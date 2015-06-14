@@ -6,12 +6,13 @@ Rectangle {
     height: 27
     color: "#b3000000"
     radius: 14
-    border.color: "#a4a4a4"
+    border.color: "#dd4814"
+    border.width: 2
     signal clicked
 
     Text {
         id: textH
-        color: "#ffffff"
+        color: "#a4a4a4"
         text: qsTr("H")
         anchors.fill: parent
         verticalAlignment: Text.AlignVCenter
