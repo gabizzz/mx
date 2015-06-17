@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Qt.labs.folderlistmodel 2.1
 import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 import PluginSqlite 1.0
 
 Rectangle {
@@ -25,6 +26,16 @@ Rectangle {
                 ultimodir=sqlSetting.get(0).Desc
                 actualizaColeccion.start();
             }
+            if (sqlSetting.get(1).Desc!==""){
+                textInputCrossfade.text=sqlSetting.get(1).Desc
+            }
+    }
+
+    onVisibleChanged: {
+        if (visible===true)
+            textInputCrossfade.focus=true
+        else
+            textInputCrossfade.focus=false
     }
 
     function carpetaFinal(argumento)
@@ -73,9 +84,9 @@ Rectangle {
     ListView {
         id: listaCarpetasView
         x: 15
-        y: 37
+        y: 65
         width: 366
-        height: 224
+        height: 196
         clip: true
 
 
@@ -146,8 +157,8 @@ Rectangle {
 
     Text {
         id: textExiste
-        x: 93
-        y: 300
+        x: 95
+        y: 303
         width: 210
         height: 15
         color: "#2865b3"
@@ -203,16 +214,63 @@ Rectangle {
     }
     BotonBuscar{
         id:botonSave
-        x: 162
-        y: 317
+        x: 165
+        y: 324
         textBuscar: "Guardar"
         onClicked: {
             sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
             sqlSetting.setQuery("DELETE FROM SETTING")
-            sqlSetting.setQuery('INSERT INTO SETTING ("Desc") VALUES ("'+ultimodir+'")')
+            sqlSetting.setQuery('INSERT INTO SETTING ("id","Desc") VALUES ("1","'+ultimodir+'")')
+            sqlSetting.setQuery('INSERT INTO SETTING ("id","Desc") VALUES ("2","'+textInputCrossfade.text+'")')
+
             actualizaColeccion.start();
             root.visible=false;
         }
+    }
+
+    Text {
+        id: text2
+        x: 15
+        y: 41
+        color: "#ffffff"
+        text: qsTr("CrossFade")
+        font.pixelSize: 12
+    }
+
+    TextField {
+        id: textInputCrossfade
+        x: 84
+        y:39
+        width: 67
+        z:4
+        height: 20
+        placeholderText: qsTr("Duration")
+        activeFocusOnPress: true
+        horizontalAlignment: Text.AlignHCenter
+        font.pixelSize: 12
+        focus:true
+
+        style: TextFieldStyle {
+                        textColor: "black"
+                        background: Rectangle {
+                            radius: 3
+                            color: "orange"
+                            implicitWidth: 100
+                            implicitHeight: 24
+                            border.color: "#333"
+                            border.width: 1
+                        }
+        }
+
+    }
+
+    Text {
+        id: text3
+        x: 157
+        y: 41
+        color: "#ffffff"
+        text: qsTr("ms")
+        font.pixelSize: 12
     }
 
 }

@@ -6,6 +6,8 @@ import QtQuick.Layouts 1.1
 import QtMultimedia 5.0
 import QtQuick.Controls.Styles 1.2
 import "logic.js" as Logic
+import PluginSqlite 1.0
+
 
 Window {
     id: window1
@@ -14,24 +16,27 @@ Window {
     color: "#000000"
     title: "MX"
 
+   SQLiteModel{id:consulta}
 
    Component.onCompleted: {
        cargaColeccion.start()
+       seteo()
    }
 
-   onFocusObjectChanged: {
-       if (carpetas.visible===true)
-           textInputBuscar.focus=false
-       else
-           textInputBuscar.focus=true
-   }
-
-
-   Setting{
+  Setting{
        id:setting
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
        visible: false
+       onVisibleChanged: {
+           if(visible===true)
+           {
+               textInputBuscar.focus=false
+           }else{
+               textInputBuscar.focus=true
+               seteo()
+           }
+       }
    }
 
    Carpetas{
@@ -39,6 +44,14 @@ Window {
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
        visible: false
+       onVisibleChanged: {
+           if(visible===true)
+           {
+               textInputBuscar.focus=false
+           }else{
+               textInputBuscar.focus=true
+           }
+       }
    }
 
    Help{
@@ -75,6 +88,16 @@ Window {
     property int indexB: 0
 
     width: Screen.width
+
+    function seteo()
+    {
+        consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+        consulta.setQuery("Select * from setting where id='2'")
+        if (consulta.get(0).Desc!=="")
+        {
+            tiempoMezcla=consulta.get(0).Desc
+        }
+    }
 
     function cargoManual()
     {
@@ -696,9 +719,7 @@ Image {
             indice=0;
             solouno=0;
             botonBuscar.textBuscar="Buscar"
-
         }
-
         onAccepted: {
             buscar()
             botonBuscar.textBuscar="Otro"
