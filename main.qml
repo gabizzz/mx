@@ -18,10 +18,8 @@ Window {
 
    SQLiteModel{id:consulta}
 
-   Component.onCompleted: {
-       cargaColeccion.start()
-       seteo()
-   }
+
+   Component.onCompleted: {seteo()}
 
   Setting{
        id:setting
@@ -63,7 +61,6 @@ Window {
 
    Timer {
        id: cargaColeccion
-       interval: 100; repeat: false
        running: true
        triggeredOnStart: true
        onTriggered: {
@@ -88,6 +85,12 @@ Window {
     property int indexB: 0
 
     width: Screen.width
+
+    function estadisPista(argPista)
+    {
+        consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+        consulta.setQuery("insert or replace into log (id, archivo, reprod) values ((select id from log where archivo = '"+argPista+"'),'"+argPista+"',(select ifnull(reprod,0) from log where archivo = '"+argPista+"')+1)")
+    }
 
     function seteo()
     {
@@ -273,6 +276,9 @@ Window {
                 {
                     botonPlayA.source="qrc:/images/play_button.png"
                     pistaA.play()
+
+                    estadisPista(pistaA.source)
+
                     playingA=true
                     timerPistaA.running=true
                     if (theSwitch.on===true)//(switchAutoDJ)
@@ -300,6 +306,9 @@ Window {
                 if (etiquetaB.textoEtiqueta!=="No Track")
                 {
                     pistaB.play()
+
+                    estadisPista(pistaB.source)
+
                     timerPistaB.running=true
                     botonPlayB.source="qrc:/images/play_button.png"
                     playingB=true

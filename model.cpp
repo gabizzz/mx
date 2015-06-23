@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDirIterator>
 #include <QFile>
+#include <QTimer>
 
 QStringList carpetitas;
 Musica::Musica(const QString &archivo, const QString &ubicacion, const QString &abc)
@@ -188,26 +189,8 @@ void MusicaModel::cargarModelo(QString path)
         {
             ultimoDir=dirpath.last();
             carpetitas<<ultimoDir.toUpper();
+            QTimer::singleShot(0, this, SLOT(resetInternalData()));
         }
     }
-
     emit enviaOrden("cargar");
-
-// esto era para ordenar el contenido alfabeticamente
-//    int n;
-//    int i;
-//    for (n=0; n < m_musicas.count(); n++)
-//    {
-//        for (i=n+1; i < m_musicas.count(); i++)
-//        {
-//            QString valorN=m_musicas.at(n).archivo();
-//            QString valorI=m_musicas.at(i).archivo();
-//            if (valorN.toUpper() > valorI.toUpper())
-//            {
-//                m_musicas.move(i, n);
-//                n=0;
-//            }
-//        }
-//    }
-
 }

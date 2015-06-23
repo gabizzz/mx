@@ -42,7 +42,7 @@ bool SQLiteModel::setDatabase(const QString &database)
 
 bool SQLiteModel::setQuery(const QString &query)
 {
-    //qDebug() << query;
+    qDebug() << query;
     QSqlQueryModel::setQuery(query, _db);
     if (this->query().record().isEmpty()) {
         qDebug() << "SQLiteModel::setQuery() -";
