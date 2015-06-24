@@ -32,5 +32,6 @@
         <file>BotonCerrar.qml</file>
         <file>BotonHome.qml</file>
         <file>Switcher.qml</file>
+        <file>Ranking.qml</file>
     </qresource>
 </RCC>

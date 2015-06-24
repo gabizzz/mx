@@ -37,6 +37,7 @@ Window {
        }
    }
 
+
    Carpetas{
        id:carpetas
        anchors.verticalCenter: parent.verticalCenter
@@ -796,6 +797,23 @@ Image {
         anchors.bottomMargin: 133
         onClicked: {folderListView.currentIndex=indexB}
     }
+
+    Image {
+        id: imageRanking
+        x: 392
+        y: 12
+        width: 35
+        height: 35
+        anchors.right: etiquetaA.left
+        anchors.rightMargin: 20
+        source: "images/iconapp.png"
+
+        MouseArea {
+            id: mouseArea1
+            anchors.fill: parent
+            onClicked: {ranking.visible=true}
+        }
+    }
 }
 Switcher{
     id:theSwitch
@@ -805,6 +823,13 @@ Switcher{
     anchors.right: parent.right
     anchors.rightMargin: 6
     z: 3
+}
+
+Ranking{
+    id:ranking
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.horizontalCenter: parent.horizontalCenter
+    visible: false
 }
 
 }
