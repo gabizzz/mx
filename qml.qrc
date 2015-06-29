@@ -33,5 +33,8 @@
         <file>BotonHome.qml</file>
         <file>Switcher.qml</file>
         <file>Ranking.qml</file>
+        <file>images/top.png</file>
+        <file>MiSlider.qml</file>
+        <file>BotonFuncion.qml</file>
     </qresource>
 </RCC>

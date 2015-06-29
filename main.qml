@@ -13,15 +13,32 @@ Window {
     id: window1
     visible: true
     height: Screen.height
+    width: Screen.width
     color: "#000000"
     title: "MX"
 
-   SQLiteModel{id:consulta}
+    property int solouno: 0 //registra cuando encuentra el primero de la busqueda
+    property int ultimoindice: 0
+    property string pistaSeleccionada: ""
+    property bool switchAutoDJ: true
+    property int indexA: 0 //indice de pista cargada
+    property int indexB: 0 //indice de pista cargada
+    property int intervalo: 2000 //intervalo de mezcla, tiempo en fundir una pista con otra
+    property string ab: ""
 
 
-   Component.onCompleted: {seteo()}
+    SQLiteModel{id:consulta}
 
-  Setting{
+   Component.onCompleted: //termino de cargar la app, cargo seteo y pongo indice en el primer lugar
+   {
+       seteo()
+       folderListView.currentIndex=0
+   }
+
+   Audio{id:pistaA }
+   Audio{id:pistaB }
+
+   Setting{ //ventana preferencias
        id:setting
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
@@ -38,7 +55,7 @@ Window {
    }
 
 
-   Carpetas{
+   Carpetas{ //ventana carpetas
        id:carpetas
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
@@ -53,14 +70,14 @@ Window {
        }
    }
 
-   Help{
+   Help{ //ventana ayuda
        id:ayuda
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
        visible: false
    }
 
-   Timer {
+   Timer { //trigger de carga de musica
        id: cargaColeccion
        running: true
        triggeredOnStart: true
@@ -71,314 +88,7 @@ Window {
     }
 
 
-    property int indice: 0
-    property int solouno: 0 //registra cuando encuentra el primero de la busqueda
-    property int ultimoindice: 0
-    property bool playingA: false
-    property bool playingB: false
-    property bool loadA: false
-    property bool loadB: false
-    property string pistaSeleccionada: ""
-    property int tiempoMezcla: 5000
-    property double sliderValue: 1.0
-    property bool switchAutoDJ: true
-    property int indexA: 0
-    property int indexB: 0
-
-    width: Screen.width
-
-    function estadisPista(argPista)
-    {
-        consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
-        consulta.setQuery("insert or replace into log (id, archivo, reprod) values ((select id from log where archivo = '"+argPista+"'),'"+argPista+"',(select ifnull(reprod,0) from log where archivo = '"+argPista+"')+1)")
-    }
-
-    function seteo()
-    {
-        consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
-        consulta.setQuery("Select * from setting where id='2'")
-        if (consulta.get(0).Desc!=="")
-        {
-            tiempoMezcla=consulta.get(0).Desc
-        }
-    }
-
-    function cargoManual()
-    {
-        if(loadA===false)
-        {
-            cargoPista("A",ultimoindice)
-        }
-        else if (loadB===false)
-        {
-            cargoPista("B",ultimoindice)
-        }
-        if(loadA===true && playingA===false)
-        {
-            playPausa("A")
-        }
-        else if (loadB===true && playingB===false)
-        {
-            playPausa("B")
-        }
-    }
-
-    function updatePos(value,maxval,minval,xMax,swidth,hwidth) {
-        var pos;
-        if (maxval > minval) {
-            pos = (value - minval) * xMax / (maxval - minval);
-            pos = Math.min(pos, swidth - hwidth);
-            pos = Math.max(pos, 0);
-            controlMedio.updateHandle(pos);
-        } else {
-            pos = (value - maxval) * xMax / (minval - maxval);
-            pos = Math.min(pos, swidth - hwidth);
-            pos = Math.max(pos, 0);
-            controlMedio.updateHandle(swidth - (hwidth - pos));
-        }
-
-        sliderValue=value
-        controlSuperior.opacidadNowPlaying(value)
-
-        fadeManual(value)
-        //fade entre pistas
-    }
-
-    function fadeManual(valorSlider){
-        if (valorSlider<1.0)
-        {
-            pistaB.volume=valorSlider;
-            pistaA.volume=1.0;
-        }
-        if (valorSlider>1.0)
-        {
-            pistaA.volume=2.0-valorSlider;
-            pistaB.volume=1.0;
-        }
-    }
-
-    function autoDj()
-    {
-                if(playingA===false)        //si la pista A no esta reproduciendose
-                {
-                    if (loadA===true)       //si la pista A esta cargada
-                    {
-                        playPausa("A")
-                    }else{                  //si la pista A no esta cargada
-                        getNextSong()
-                        cargoPista("A",ultimoindice)
-                        playPausa("A")
-                    }
-                }else if(playingB===false){ //si la pista B no esta reproduciendose
-                    if (loadB===true)       //si la pista B esta cargada
-                    {
-                        playPausa("B")
-                    }else{                  //si la pista B no esta cargada
-                        getNextSong()
-                        cargoPista("B",ultimoindice)
-                        playPausa("B")
-                    }
-                }
-    }
-
-    function controlFinPista(pista){
-        if (pista==="B")
-        {
-            if(pistaB.status===7)
-            {
-                limpiarPista("B")
-            }
-        }
-        if (pista==="A")
-        {
-            if(pistaA.status===7)
-            {
-                limpiarPista("A")
-            }
-        }
-
-    }
-
-    function getNextSong()
-    {      
-        if (textInputBuscar.text==="")
-        {
-            folderListView.incrementCurrentIndex();
-            ultimoindice=folderListView.currentIndex;
-            pistaSeleccionada="file://"+myModelMusica.get(folderListView.currentIndex).ubicacion;
-        }else{
-            buscar()
-        }
-    }
-
-    function cargoPista(pista,argIndex)
-    {
-        if (pistaSeleccionada.length!==0)//si la pista seleccionada no esta vacia
-        {
-
-        if (pista==="A")
-        {
-            indexA=argIndex
-            if (playingA===false)
-            {
-                pistaA.source=pistaSeleccionada
-                controlMedio.addA()
-                etiquetaA.textoEtiqueta="Loaded"
-                labeltiempopistaA.text=""
-                botonPlayA.source="/images/loaded_play_button.png"
-                loadA=true
-            }
-        }
-        if (pista==="B")
-        {
-            indexB=argIndex
-            if (playingB===false)
-            {
-                controlMedio.addB()
-                pistaB.source=pistaSeleccionada
-                etiquetaB.textoEtiqueta="Loaded"
-                labeltiempopistaB.text=""
-                botonPlayB.source="/images/loaded_play_button.png"
-                loadB=true
-            }
-        }
-
-        }else{
-            getNextSong() ////si la pista seleccionada esta vacia elige la primera despues del indice actual
-        }
-    }
-
-    function quitoPista(pista)
-    {
-        if(pista==="A")
-        {
-            if (playingA===false)
-            {
-                limpiarPista("A")
-            }
-        }
-        if(pista==="B")
-        {
-            if(playingB===false)
-            {
-                limpiarPista("B")
-            }
-        }
-    }
-
-
-    function playPausa(pista)
-    {
-        if(pista==="A")
-        {
-            if (playingA===false)
-            {
-                if (etiquetaA.textoEtiqueta!=="No Track")
-                {
-                    botonPlayA.source="qrc:/images/play_button.png"
-                    pistaA.play()
-
-                    estadisPista(pistaA.source)
-
-                    playingA=true
-                    timerPistaA.running=true
-                    if (theSwitch.on===true)//(switchAutoDJ)
-                    {
-                        fadepistaATimer.interval=tiempoMezcla/(sliderValue*100)
-                        fadepistaATimer.start()
-                    }
-                }
-            }else{
-                //si la pista esta reproduciendose
-                //pregunto si el volumen esta de su lado
-                if (sliderValue>1.0){
-                    pistaA.pause()
-                    controlSuperior.nowPlayingA("Pause: "+pistaA.metaData.albumArtist+" ("+pistaA.metaData.title+") "+(pistaA.metaData.audioBitRate/1000)+" bitrate") // show track meta data
-                    botonPlayA.source="qrc:/images/play_button_pause.png"
-                    playingA=false
-                    timerPistaA.stop()
-                }
-            }
-        }
-        if(pista==="B")
-        {
-            if (playingB===false)
-            {
-                if (etiquetaB.textoEtiqueta!=="No Track")
-                {
-                    pistaB.play()
-
-                    estadisPista(pistaB.source)
-
-                    timerPistaB.running=true
-                    botonPlayB.source="qrc:/images/play_button.png"
-                    playingB=true
-                    if (theSwitch.on===true)//(switchAutoDJ)
-                    {
-                        fadepistaBTimer.interval=tiempoMezcla/((2.0-sliderValue)*100)//el valor max menos la pos del slider
-                        fadepistaBTimer.start()
-                    }
-                }
-            }else{
-                 if (sliderValue<1.0){
-                        pistaB.pause()
-                        controlSuperior.nowPlayingB("Pause: "+pistaB.metaData.albumArtist+" ("+pistaB.metaData.title+") "+(pistaB.metaData.audioBitRate/1000)+" bitrate") // show track meta data
-                        botonPlayB.source="qrc:/images/play_button_pause.png"
-                        playingB=false
-                        timerPistaB.stop()
-                 }
-            }
-        }
-    }
-
-    function limpiarPista(pista)
-    {
-        if (pista==="A"){
-            controlMedio.quitoA()
-            botonPlayA.source="/images/disable_play_button.png"
-            etiquetaA.textoEtiqueta="No Track"
-            labeltiempopistaA.text=""
-            controlSuperior.nowPlayingA("")
-            pistaA.source=""
-            loadA=false
-            playingA=false
-        }
-        if (pista==="B"){
-            controlMedio.quitoB()
-            botonPlayB.source="/images/disable_play_button.png"
-            etiquetaB.textoEtiqueta="No Track"
-            labeltiempopistaB.text=""
-            controlSuperior.nowPlayingB("")
-            pistaB.source=""
-            loadB=false
-            playingB=false
-        }
-    }
-
-    function buscar()
-    {        
-        for(var i = ultimoindice; i < folderListView.count;i++)
-        {
-            var cadena=myModelMusica.get(i).ubicacion;
-            cadena=cadena.toUpperCase();
-            if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
-            {
-                if (solouno===0) //el primero que encuentra
-                    solouno=i
-                pistaSeleccionada="file://"+myModelMusica.get(i).ubicacion
-                folderListView.currentIndex=i;
-                ultimoindice=i+1;
-                return;
-            }
-        }
-        folderListView.currentIndex=solouno
-        pistaSeleccionada="file://"+myModelMusica.get(solouno).ubicacion
-        ultimoindice=solouno+1
-    }
-
-
-
-ControlSuperior {
+ControlSuperior { //panel superior
     id: controlSuperior
     z:1
     height: 30
@@ -389,103 +99,10 @@ ControlSuperior {
     anchors.rightMargin: 0
     anchors.left: parent.left
     anchors.leftMargin: 0
-
 }
-//ver si la pista esta en pausa y corro el fade para su lado en auto dj, la finaliza y reproduce la otra (corregir)
-    Timer {
-        id:fadepistaATimer
-        repeat: true;
-        onTriggered: {
-            if(sliderValue > 0.00) {
-                sliderValue -= 0.01;
-            }else if(sliderValue <0.10){
-                timerPistaB.stop()
-                fadepistaATimer.stop()
-                sliderValue=0.1
-                limpiarPista("B")
-            }
-            controlMedio.updateSliderValue(sliderValue)
-        }
-    }
 
-    Timer {
-        id:fadepistaBTimer
-        repeat: true;
-        onTriggered: {
-            if(sliderValue < 1.90)
-            {
-                sliderValue += 0.01;
-            }else if(sliderValue >1.90){
-                timerPistaA.stop()
-                fadepistaBTimer.stop()
-                sliderValue=2.00
-                limpiarPista("A")
-            }
-            controlMedio.updateSliderValue(sliderValue)
-        }
-    }   
 
-    Audio{
-        id:pistaA
-        source: ""
-    }
-    Audio{
-        id:pistaB
-        source: ""
-    }
-    Component {
-        id: eligeItemDelegate
-        Item {
-            id: itemLista
-            height: 30
-            width: folderListView.width
-
-            Image {
-                id: fileIcon
-                width: 26
-                height: 20
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-                source: "images/audio.png"
-                antialiasing: true
-            }
-            Text {
-                id:elementoLista
-                anchors {
-                    left: parent.left
-                    leftMargin: 35
-                    verticalCenter: parent.verticalCenter
-                }
-                elide: Text.ElideRight
-                font.pointSize: 10
-                font.letterSpacing: -1
-                color: "#ffcd8b"
-                text: archivo.toUpperCase()
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    folderListView.currentIndex=index
-                    ultimoindice=index
-                    pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
-                }
-                onDoubleClicked: {
-                    folderListView.currentIndex=index
-                    ultimoindice=index
-                    pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
-
-                    if (fadepistaBTimer.running)
-                        fadepistaBTimer.stop()
-                    else if (fadepistaATimer.running)
-                        fadepistaATimer.stop()
-                    cargoManual()
-                }
-
-            }
-        }
-    }
-
-ListView {
+ListView { //lista de temas
     id: folderListView
     height: 500
     anchors.left: parent.left
@@ -514,7 +131,7 @@ ListView {
             color:"#1d1d26"
             Text {
                 id:textoSection
-                font.pointSize: 12
+                minimumPixelSize: 10; font.pixelSize: 16;
                 font.bold: true
                 color: "#e84f43"
                 text: section.toUpperCase()
@@ -532,8 +149,56 @@ ListView {
             }
         }
     }
-
 }
+
+
+    Component { //item de la lista
+        id: eligeItemDelegate
+        Item {
+            id: itemLista
+            height: 30
+            width: folderListView.width
+
+            Image {
+                id: fileIcon
+                width: 26
+                height: 20
+                anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                source: "images/audio.png"
+                antialiasing: true
+            }
+            Text {
+                id:elementoLista
+                anchors {
+                    left: parent.left
+                    leftMargin: 35
+                    verticalCenter: parent.verticalCenter
+                }
+                elide: Text.ElideRight
+                minimumPixelSize: 10; font.pixelSize: 14;
+                font.letterSpacing: -1
+                color: "#ffcd8b"
+                text: archivo.toUpperCase()
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    folderListView.currentIndex=index
+                    ultimoindice=index
+                    pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
+                }
+                onDoubleClicked: {
+                    folderListView.currentIndex=index
+                    ultimoindice=index+1
+                    pistaSeleccionada="file://"+myModelMusica.get(index).ubicacion;
+                    cargoManual()
+                }
+
+            }
+        }
+    }
+
 
 Image {
     id: rectangleControles
@@ -598,32 +263,13 @@ Image {
         sourceSize.width: 100
         source: "images/disable_play_button.png"
 
-        //MouseArea{
         MultiPointTouchArea{
             anchors.fill: parent
             maximumTouchPoints: 2
             onPressed: {
-                playPausa("A")
+                playPistaA()
             }
-            Timer {
-                id:timerPistaA
-                interval: 1000; repeat: true;
-                onTriggered: {
-                    labeltiempopistaA.text="-"+Logic.getTimeFromMSec(pistaA.duration-pistaA.position)
-                    etiquetaA.textoEtiqueta=pistaA.metaData.albumArtist+"\n("+pistaA.metaData.title+")" // show track meta data
-                    controlSuperior.nowPlayingA("Playing: "+pistaA.metaData.albumArtist+" ("+pistaA.metaData.title+") "+(pistaA.metaData.audioBitRate/1000)+" bitrate") // show track meta data
-
-                    if(Logic.getTimeFromMSec(pistaA.position)===Logic.getTimeFromMSec(pistaA.duration-tiempoMezcla))
-                    {
-                        if (theSwitch.on===true)
-                        {
-                            autoDj()
-                        }
-                    }
-                    controlFinPista("A")
-                }
-            }
-        }
+       }
 
         Label {
             id: labeltiempopistaA
@@ -651,26 +297,7 @@ Image {
             maximumTouchPoints: 2
             anchors.fill: parent
             onPressed: {
-                playPausa("B")
-            }
-            Timer {
-                id:timerPistaB
-                interval: 1000; repeat: true;
-                onTriggered: {
-                    labeltiempopistaB.text="-"+Logic.getTimeFromMSec(pistaB.duration-pistaB.position)
-                    etiquetaB.textoEtiqueta=pistaB.metaData.albumArtist+"\n("+pistaB.metaData.title+")" // show track meta data
-                    controlSuperior.nowPlayingB("Playing: "+pistaB.metaData.albumArtist+" ("+pistaB.metaData.title+") "+(pistaB.metaData.audioBitRate/1000)+" bitrate") // show track meta data
-
-
-                    if(Logic.getTimeFromMSec(pistaB.position)===Logic.getTimeFromMSec(pistaB.duration-tiempoMezcla))
-                    {
-                        if (theSwitch.on===true)
-                        {
-                            autoDj()
-                        }
-                    }                    
-                    controlFinPista("B")
-                }
+               playPistaB()
             }
         }
 
@@ -690,22 +317,80 @@ Image {
         y: 26
         anchors.horizontalCenterOffset: 0
         anchors.horizontalCenter: parent.horizontalCenter
-        onAgregaAPressed: {
-            if (playingA===false)
-            cargoPista("A",ultimoindice);
+
+        BotonFuncion {
+            id: botonFuncionCenter
+            x: 106
+            width: 48
+            height: 48
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.horizontalCenter: rectangleControles.horizontalCenter
+            onClicked: {miSlider1.xSlider=100}
         }
-        onAgregaAPressAndHold: {
-            quitoPista("A");
+
+        MiSlider {
+            id: miSlider1
+            y: 81
+            height: 10
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 29
+            anchors.right: parent.right
+            anchors.rightMargin: 13
+            anchors.left: parent.left
+            anchors.leftMargin: 17
+            anchors.horizontalCenter: rectangleControles.horizontalCenter
+            onXSliderChanged: {volumenPistas()}
         }
-        onAgregaBPressed: {
-            if (playingB===false)
-            cargoPista("B",ultimoindice);
+
+        BotonFuncion {
+            id: botonAgregaA
+            width: 47
+            height: 47
+            anchors.top: parent.top
+            anchors.topMargin: 9
+            anchors.left: parent.left
+            anchors.leftMargin: 17
+            textoBoton: "+"
+            onClicked: {
+                if (pistaA.playbackState===0)
+                    cargoPista("A");
+            }
+            onPressandhold: {
+                quitoPista("A");
+            }
         }
-        onAgregaBPressAndHold: {
-            quitoPista("B");
+
+        BotonFuncion {
+            id: botonAgregaB
+            x: 197
+            width: 47
+            height: 47
+            anchors.top: parent.top
+            anchors.topMargin: 9
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+            textoBoton: "+"
+            onClicked: {
+                if (pistaB.playbackState===0)
+                    cargoPista("B");
+            }
+            onPressandhold: {
+                quitoPista("B");
+            }
         }
-        onSliderUpdatePos: {
-            updatePos(value,maxval,minval,xMax,swidth,hwidth);
+
+        Text {
+            id: textcantidadtracks
+            x: 113
+            y: 105
+            color: "#666666"
+            text: qsTr("Tracks")
+            anchors.horizontalCenterOffset: 0
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: 12
         }
     }
 
@@ -726,7 +411,6 @@ Image {
         focus:true
 
         onTextChanged: {
-            indice=0;
             solouno=0;
             botonBuscar.textBuscar="Buscar"
         }
@@ -761,19 +445,6 @@ Image {
 
     }
 
-    Text {
-        id: textcantidadtracks
-        x: 671
-        y: 152
-        color: "#a6a6a6"
-        text: qsTr("Tracks")
-        anchors.horizontalCenterOffset: 0
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 13
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: 12
-    }
-
     Etiqueta {
         id: etiquetaA
         x: 447
@@ -806,7 +477,7 @@ Image {
         height: 35
         anchors.right: etiquetaA.left
         anchors.rightMargin: 20
-        source: "images/iconapp.png"
+        source: "images/top.png"
 
         MouseArea {
             id: mouseArea1
@@ -815,7 +486,15 @@ Image {
         }
     }
 }
-Switcher{
+
+Ranking{  //ventana ranking
+    id:ranking
+    anchors.verticalCenter: parent.verticalCenter
+    anchors.horizontalCenter: parent.horizontalCenter
+    visible: false
+}
+
+Switcher{ //switch de autodj
     id:theSwitch
     x: 1292
     anchors.top: parent.top
@@ -825,12 +504,274 @@ Switcher{
     z: 3
 }
 
-Ranking{
-    id:ranking
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.horizontalCenter: parent.horizontalCenter
-    visible: false
+Timer{  //timer de fade automatico
+    id:faderautomatico
+    running: false; repeat: true
+    onTriggered:
+    {
+        if (ab==="A"){
+            if(miSlider1.xSlider > 0) //0.00
+            {
+                miSlider1.xSlider -= 1;//0.01
+            }else{
+                pistaB.stop()
+                limpiarPistas("B")
+                detieneTimer()
+
+                getNextSong()
+                cargoPista("B")
+            }
+        }else if (ab==="B"){
+            if(miSlider1.xSlider < 200)//1.90
+            {
+                miSlider1.xSlider += 1;//0.01
+            }else {
+                pistaA.stop()
+                limpiarPistas("A")
+                detieneTimer()
+
+                getNextSong()
+                cargoPista("A")
+            }
+        }
+        volumenPistas()
+    }
 }
+
+Timer{ //timer de control de fin de pista
+    id:finPista
+    running: false;repeat: true
+    onTriggered: {
+        if (pistaA.playbackState===1){
+
+            labeltiempopistaA.text="-"+Logic.getTimeFromMSec(pistaA.duration-pistaA.position)
+            etiquetaA.textoEtiqueta=pistaA.metaData.albumArtist+"\n("+pistaA.metaData.title+")" // show track meta data
+            controlSuperior.nowPlayingA("Playing: "+pistaA.metaData.albumArtist+" ("+pistaA.metaData.title+") "+(pistaA.metaData.audioBitRate/1000)+" bitrate") // show track meta data
+
+            if((pistaA.duration-pistaA.position)<intervalo)
+                playPistaB()
+        }
+        if(pistaB.playbackState===1){
+
+            labeltiempopistaB.text="-"+Logic.getTimeFromMSec(pistaB.duration-pistaB.position)
+            etiquetaB.textoEtiqueta=pistaB.metaData.albumArtist+"\n("+pistaB.metaData.title+")" // show track meta data
+            controlSuperior.nowPlayingB("Playing: "+pistaB.metaData.albumArtist+" ("+pistaB.metaData.title+") "+(pistaB.metaData.audioBitRate/1000)+" bitrate") // show track meta data
+
+            if((pistaB.duration-pistaB.position)<intervalo)
+                playPistaA()
+        }
+
+    }
+}
+
+
+function playPistaA()
+{
+    ab="A";
+    if (miSlider1.xSlider>100 && pistaA.playbackState===1){ //esto es para poder parar la pista si esta reproduciendose la opuesta
+        pistaA.stop()
+        quitoPista(ab)
+    }else{
+        pistaA.play()
+        finPista.running=true
+        intervaloMezcla(intervalo/miSlider1.xSlider)
+        if(theSwitch.on===true)
+            iniciaTimer()
+        else
+            detieneTimer()
+    }
+}
+
+function playPistaB()
+{
+    ab="B";
+    if (miSlider1.xSlider<100 && pistaB.playbackState===1){ //esto es para poder parar la pista si esta reproduciendose la opuesta
+        pistaB.stop()
+        quitoPista(ab)
+    }else{
+    pistaB.play()
+    finPista.running=true
+    intervaloMezcla((intervalo/(200-miSlider1.xSlider)))
+    if(theSwitch.on===true)
+        iniciaTimer()
+    else
+        detieneTimer()
+    }
+}
+
+function intervaloMezcla(arg)
+{
+    faderautomatico.interval=arg
+}
+
+function iniciaTimer()
+{
+    faderautomatico.running=true
+}
+
+function detieneTimer()
+{
+    faderautomatico.running=false
+}
+
+function limpiarPistas(pista)
+{
+    if (pista==="A"){
+        botonPlayA.source="/images/disable_play_button.png"
+        etiquetaA.textoEtiqueta="No Track"
+        labeltiempopistaA.text=""
+        controlSuperior.nowPlayingA("")
+        pistaA.source=""      
+    }
+    if (pista==="B"){
+        botonPlayB.source="/images/disable_play_button.png"
+        etiquetaB.textoEtiqueta="No Track"
+        labeltiempopistaB.text=""
+        controlSuperior.nowPlayingB("")
+        pistaB.source=""
+    }
+}
+
+function intToFloat(num,decplaces)
+{
+    return num.toFixed(decplaces);
+}
+
+function volumenPistas()
+{
+    var valA=(200-miSlider1.xSlider)/100;
+    var valB=miSlider1.xSlider/100;
+
+    pistaA.volume=intToFloat(valA,1)
+    pistaB.volume=intToFloat(valB,1)
+
+    controlSuperior.opacidadNowPlaying(miSlider1.xSlider/100) //cambia la opacidad entre nombre de una pista y la otra
+}
+
+function seteo()
+{
+    consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+    consulta.setQuery("Select * from setting where id='2'")
+    if (consulta.get(0).Desc!=="")
+    {
+        intervalo=consulta.get(0).Desc
+    }
+}
+
+function buscar()
+{
+    for(var i = ultimoindice; i < folderListView.count;i++)
+    {
+        var cadena=myModelMusica.get(i).ubicacion;
+        cadena=cadena.toUpperCase();
+        if(cadena.indexOf(textInputBuscar.text.toUpperCase()) > -1)
+        {
+            if (solouno===0) //el primero que encuentra
+                solouno=i
+            pistaSeleccionada="file://"+myModelMusica.get(i).ubicacion
+            folderListView.currentIndex=i;
+            ultimoindice=i+1;
+            return;
+        }
+    }
+    folderListView.currentIndex=solouno
+    pistaSeleccionada="file://"+myModelMusica.get(solouno).ubicacion
+    ultimoindice=solouno+1
+}
+
+function estadisPista(argPista)
+{
+    consulta.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+    consulta.setQuery("insert or replace into log (id, archivo, reprod) values ((select id from log where archivo = '"+argPista+"'),'"+argPista+"',(select ifnull(reprod,0) from log where archivo = '"+argPista+"')+1)")
+}
+
+function cargoManual()
+{
+    if((pistaA.status===1 || pistaA.status===3) && pistaA.playbackState===0)
+    {
+        cargoPista("A",ultimoindice)
+    }
+    else if ((pistaB.status===1 || pistaB.status===3) && pistaB.playbackState===0)
+    {
+        cargoPista("B",ultimoindice)
+    }
+
+    //1 no media,2 Loading, 6 buffered, 3 Loaded
+
+    if((pistaA.status===3 || pistaA.status===2) && pistaA.playbackState===0)
+    {
+        playPistaA()
+    }
+    else if ((pistaB.status===3 || pistaB.status===2) && pistaB.playbackState===0)
+    {
+        playPistaB()
+    }
+}
+
+function getNextSong()
+{
+    if (textInputBuscar.text==="")
+    {
+        //folderListView.currentIndex=ultimoindice;
+        folderListView.incrementCurrentIndex();
+        ultimoindice=folderListView.currentIndex;
+        pistaSeleccionada="file://"+myModelMusica.get(folderListView.currentIndex).ubicacion;
+    }else{
+        buscar()
+    }
+}
+
+function cargoPista(pista)
+{
+    if (pistaSeleccionada.length!==0)//si la pista seleccionada no esta vacia
+    {
+
+    if (pista==="A")
+    {
+        indexA=folderListView.currentIndex
+        if (pistaA.playbackState===0)
+        {
+            pistaA.source=pistaSeleccionada
+            etiquetaA.textoEtiqueta="Loaded"
+            labeltiempopistaA.text=""
+            botonPlayA.source="/images/loaded_play_button.png"
+        }
+    }
+    if (pista==="B")
+    {
+        indexB=folderListView.currentIndex
+        if (pistaB.playbackState===0)
+        {
+            pistaB.source=pistaSeleccionada
+            etiquetaB.textoEtiqueta="Loaded"
+            labeltiempopistaB.text=""
+            botonPlayB.source="/images/loaded_play_button.png"
+        }
+    }
+
+    }else{
+        getNextSong() ////si la pista seleccionada esta vacia elige la primera despues del indice actual
+    }
+}
+
+function quitoPista(pista)
+{
+    if(pista==="A")
+    {
+        if (pistaA.playbackState===0)
+        {
+            limpiarPistas("A")
+        }
+    }
+    if(pista==="B")
+    {
+        if(pistaB.playbackState===0)
+        {
+            limpiarPistas("B")
+        }
+    }
+}
+
 
 }
 
