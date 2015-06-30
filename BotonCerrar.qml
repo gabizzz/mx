@@ -10,6 +10,8 @@ Rectangle {
     border.width: 2
 
     signal clicked
+    property alias textoBoton: textX.text
+
 
     Text {
         id: textX

@@ -324,22 +324,21 @@ Image {
             width: 48
             height: 48
             anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.horizontalCenter: rectangleControles.horizontalCenter
+            anchors.topMargin: 9
+            anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {miSlider1.xSlider=100}
         }
 
         MiSlider {
             id: miSlider1
-            y: 81
+            y: 78
             height: 10
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 29
             anchors.right: parent.right
             anchors.rightMargin: 13
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 32
             anchors.left: parent.left
             anchors.leftMargin: 17
-            anchors.horizontalCenter: rectangleControles.horizontalCenter
             onXSliderChanged: {volumenPistas()}
         }
 
@@ -489,6 +488,7 @@ Image {
 
 Ranking{  //ventana ranking
     id:ranking
+    z: 4
     anchors.verticalCenter: parent.verticalCenter
     anchors.horizontalCenter: parent.horizontalCenter
     visible: false
@@ -573,6 +573,7 @@ function playPistaA()
         quitoPista(ab)
     }else{
         pistaA.play()
+        estadisPista(pistaA.source)
         finPista.running=true
         intervaloMezcla(intervalo/miSlider1.xSlider)
         if(theSwitch.on===true)
@@ -589,9 +590,10 @@ function playPistaB()
         pistaB.stop()
         quitoPista(ab)
     }else{
-    pistaB.play()
-    finPista.running=true
-    intervaloMezcla((intervalo/(200-miSlider1.xSlider)))
+        pistaB.play()
+        estadisPista(pistaB.source)
+        finPista.running=true
+        intervaloMezcla((intervalo/(200-miSlider1.xSlider)))
     if(theSwitch.on===true)
         iniciaTimer()
     else

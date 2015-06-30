@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    app.setWindowIcon(QIcon(":/images/iconapp.png"));
+    app.setWindowIcon(QIcon(":/images/iconapp.png"));   
 
     SQLiteModel::declareQML();
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     //modeloMusica.cargarModelo(seteoMiLibreria.get(0).first().toString());
     //modeloMusica.cargarModelo(QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0));
 
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0);
+    //qDebug()<<QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0);
 
     QQmlApplicationEngine engine;
 

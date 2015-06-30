@@ -8,9 +8,9 @@ Rectangle {
     width: 400
     height: 350
     color: "#000000"
-    radius: 2
+    radius: 3
     border.color: "#262626"
-    border.width: 1
+    border.width: 2
 
     function cortar(argArchivo)
     {
@@ -29,9 +29,8 @@ Rectangle {
         sqlRanking.setQuery("select archivo, reprod from log  order by reprod desc limit '"+sliderHorizontal1.value+"'")
     }
 
-    SQLiteModel{
-        id:sqlRanking
-    }
+    SQLiteModel{id:sqlRanking}
+    SQLiteModel{id:resetRanking}
 
     onVisibleChanged:{
         consultar()
@@ -39,8 +38,8 @@ Rectangle {
 
 BotonCerrar {
     id: botonCerrar1
-    x: 0
-    y: 0
+    x: 8
+    y: 4
     onClicked: {parent.visible=false}
 }
 
@@ -48,9 +47,11 @@ ListView {
     id: listViewRanking
     x: 8
     y: 20
+    anchors.rightMargin: 8
+    anchors.leftMargin: 8
     anchors.bottomMargin: 42
     clip: true
-    anchors.topMargin: 25
+    anchors.topMargin: 33
         anchors.fill: parent
         model: sqlRanking
         delegate: Item {
@@ -95,13 +96,25 @@ Text {
     anchors.top: parent.top
     anchors.topMargin: 4
     anchors.right: parent.right
-    anchors.rightMargin: 0
+    anchors.rightMargin: 8
     anchors.left: parent.left
-    anchors.leftMargin: 0
+    anchors.leftMargin: 8
     font.bold: true
     verticalAlignment: Text.AlignVCenter
     horizontalAlignment: Text.AlignHCenter
     font.pixelSize: 12
+}
+
+BotonCerrar {
+    id: botonReset
+    x: 42
+    y: 4
+    textoBoton: "R"
+    onClicked: {
+        resetRanking.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+        resetRanking.setQuery("DELETE FROM LOG")
+        consultar()
+    }
 }
 
 Slider {
@@ -122,9 +135,11 @@ Slider {
         onValueChanged: {
             consultar()
         }
-    }
+}
 
-
-
+Component.onCompleted: {
+    sqlRanking.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+    sqlRanking.setQuery("CREATE TABLE LOG (id INTEGER PRIMARY KEY AUTOINCREMENT,archivo CHAR NOT NULL  UNIQUE , reprod INTEGER DEFAULT 0)")
+}
 }
 

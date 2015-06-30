@@ -15,12 +15,14 @@ SQLiteModel::~SQLiteModel() {
 }
 
 bool SQLiteModel::setDatabase(const QString &database)
-{
+{   
     if (!QFileInfo(QStandardPaths::standardLocations(QStandardPaths::DataLocation).at(0)+database).exists())
     {
-        qDebug() << "SQLiteModel::setDatabase() - Could not find database '" + database + "'--- creandoooo.......";
-        QSqlQuery q;
-        q.exec("CREATE TABLE IF NOT EXISTS SETTING(Id INTEGER PRIMARY KEY, Desc TEXT)");
+        qDebug() << "set data bases";
+//        QSqlQuery q;
+//        q.exec("CREATE TABLE IF NOT EXISTS SETTING(Id INTEGER PRIMARY KEY, Desc TEXT)");
+//        q.exec("CREATE TABLE IF NOT EXISTS LOG (id INTEGER PRIMARY KEY AUTOINCREMENT,archivo CHAR NOT NULL  UNIQUE , reprod INTEGER DEFAULT 0)");
+
         return false;
     }
 
@@ -45,7 +47,7 @@ bool SQLiteModel::setQuery(const QString &query)
     //qDebug() << query;
     QSqlQueryModel::setQuery(query, _db);
     if (this->query().record().isEmpty()) {
-        qDebug() << "SQLiteModel::setQuery() -";
+        qDebug() << "SQLiteModel::setQuery()";
         return false;
     }
     return true;

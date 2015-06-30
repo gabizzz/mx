@@ -19,7 +19,9 @@ Rectangle {
 
     Component.onCompleted:
     {
-            sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
+            sqlSetting.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")        
+            sqlSetting.setQuery("CREATE TABLE IF NOT EXISTS SETTING(Id INTEGER PRIMARY KEY, Desc TEXT)");
+
             sqlSetting.setQuery("Select * from setting")
             if (sqlSetting.get(0).Desc!==""){
                 textSettingGuardado.text=sqlSetting.get(0).Desc
