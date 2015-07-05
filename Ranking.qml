@@ -139,7 +139,7 @@ Slider {
 
 Component.onCompleted: {
     sqlRanking.setDatabase("/QML/OfflineStorage/Databases/mx.sqlite")
-    sqlRanking.setQuery("CREATE TABLE LOG (id INTEGER PRIMARY KEY AUTOINCREMENT,archivo CHAR NOT NULL  UNIQUE , reprod INTEGER DEFAULT 0)")
+    sqlRanking.setQuery("CREATE TABLE IF NOT EXISTS LOG (id INTEGER PRIMARY KEY AUTOINCREMENT,archivo CHAR NOT NULL  UNIQUE , reprod INTEGER DEFAULT 0)")
 }
 }
 

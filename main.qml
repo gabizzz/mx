@@ -25,6 +25,9 @@ Window {
     property int indexB: 0 //indice de pista cargada
     property int intervalo: 2000 //intervalo de mezcla, tiempo en fundir una pista con otra
     property string ab: ""
+    property bool unicaA: false //verifica que en fade out no ejecute mas de una vez la misma pista
+    property bool unicaB: false
+
 
 
     SQLiteModel{id:consulta}
@@ -218,9 +221,9 @@ Image {
         y: 100
         width: 35
         height: 34
-        anchors.verticalCenterOffset: 9
+        anchors.verticalCenterOffset: 42
         anchors.left: botonPlayB.right
-        anchors.leftMargin: 20
+        anchors.leftMargin: 21
         anchors.verticalCenter: controlMedio.verticalCenter
         source: "images/help.png"
         MouseArea{
@@ -234,11 +237,11 @@ Image {
 
     Image {
         id: imageSetting
-        x: 362
+        x: 392
         y: 100
         width: 35
         height: 34
-        anchors.verticalCenterOffset: 6
+        anchors.verticalCenterOffset: 38
         anchors.right: botonPlayA.left
         anchors.rightMargin: 20
         anchors.verticalCenter: parent.verticalCenter
@@ -515,6 +518,7 @@ Timer{  //timer de fade automatico
                 miSlider1.xSlider -= 1;//0.01
             }else{
                 pistaB.stop()
+                unicaB=false
                 limpiarPistas("B")
                 detieneTimer()
 
@@ -527,6 +531,7 @@ Timer{  //timer de fade automatico
                 miSlider1.xSlider += 1;//0.01
             }else {
                 pistaA.stop()
+                unicaA=false
                 limpiarPistas("A")
                 detieneTimer()
 
@@ -543,22 +548,24 @@ Timer{ //timer de control de fin de pista
     running: false;repeat: true
     onTriggered: {
         if (pistaA.playbackState===1){
-
             labeltiempopistaA.text="-"+Logic.getTimeFromMSec(pistaA.duration-pistaA.position)
             etiquetaA.textoEtiqueta=pistaA.metaData.albumArtist+"\n("+pistaA.metaData.title+")" // show track meta data
             controlSuperior.nowPlayingA("Playing: "+pistaA.metaData.albumArtist+" ("+pistaA.metaData.title+") "+(pistaA.metaData.audioBitRate/1000)+" bitrate") // show track meta data
 
-            if((pistaA.duration-pistaA.position)<intervalo)
-                playPistaB()
+            if((pistaA.duration-pistaA.position)<intervalo && unicaB===false){//Esto lo tiene que hacer una sola vez
+                    unicaB=true
+                    playPistaB()
+            }
         }
         if(pistaB.playbackState===1){
-
             labeltiempopistaB.text="-"+Logic.getTimeFromMSec(pistaB.duration-pistaB.position)
             etiquetaB.textoEtiqueta=pistaB.metaData.albumArtist+"\n("+pistaB.metaData.title+")" // show track meta data
             controlSuperior.nowPlayingB("Playing: "+pistaB.metaData.albumArtist+" ("+pistaB.metaData.title+") "+(pistaB.metaData.audioBitRate/1000)+" bitrate") // show track meta data
 
-            if((pistaB.duration-pistaB.position)<intervalo)
-                playPistaA()
+            if((pistaB.duration-pistaB.position)<intervalo && unicaA===false){//Esto lo tiene que hacer una sola vez
+                    unicaA=true
+                    playPistaA()
+            }
         }
 
     }
@@ -568,37 +575,27 @@ Timer{ //timer de control de fin de pista
 function playPistaA()
 {
     ab="A";
-    if (miSlider1.xSlider>100 && pistaA.playbackState===1){ //esto es para poder parar la pista si esta reproduciendose la opuesta
-        pistaA.stop()
-        quitoPista(ab)
-    }else{
-        pistaA.play()
-        estadisPista(pistaA.source)
-        finPista.running=true
-        intervaloMezcla(intervalo/miSlider1.xSlider)
-        if(theSwitch.on===true)
-            iniciaTimer()
-        else
-            detieneTimer()
-    }
+    pistaA.play()
+    estadisPista(pistaA.source)
+    finPista.running=true
+    intervaloMezcla(intervalo/miSlider1.xSlider)
+    if(theSwitch.on===true)
+        iniciaTimer()
+    else
+        detieneTimer()
 }
 
 function playPistaB()
 {
     ab="B";
-    if (miSlider1.xSlider<100 && pistaB.playbackState===1){ //esto es para poder parar la pista si esta reproduciendose la opuesta
-        pistaB.stop()
-        quitoPista(ab)
-    }else{
-        pistaB.play()
-        estadisPista(pistaB.source)
-        finPista.running=true
-        intervaloMezcla((intervalo/(200-miSlider1.xSlider)))
+    pistaB.play()
+    estadisPista(pistaB.source)
+    finPista.running=true
+    intervaloMezcla((intervalo/(200-miSlider1.xSlider)))
     if(theSwitch.on===true)
         iniciaTimer()
     else
         detieneTimer()
-    }
 }
 
 function intervaloMezcla(arg)
